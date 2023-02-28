@@ -1,65 +1,91 @@
 import cv2 as cv
 import numpy as np
+import color_analyzer as color
 
 def nothing(x):
     pass
 
-if __name__ == "__main__":
+def mask_images(images):
+    masks = []
+    for img in images:
+        masks.append(np.zeros(img.shape, np.uint8))
+    return masks
+
+def grayscale_images(images):
+    gray_images = []
+    for img in images:
+        gray_images.append(cv.cvtColor(img, cv.COLOR_BGR2GRAY))
+        
+    return gray_images
+
+def find_edges(gray_img, low, upper):
+    edges = cv.Canny(gray_img, low, upper)
+    boxes, _ = cv.findContours(edges, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+    
+    return boxes
+
+def threshold_finder(images, index):
     cv.namedWindow("Trackbars")
     
-    cv.createTrackbar("L", "Trackbars", 172, 1028, nothing)
-    cv.createTrackbar("U", "Trackbars", 759, 1028, nothing)
+    cv.createTrackbar("L", "Trackbars", 72, 1028, nothing)
+    cv.createTrackbar("U", "Trackbars", 350, 1028, nothing)
 
-    img = cv.imread('Github/Solar-Panel-Cleaning-Robot/Pictures/solar1.jpeg')
-    img2 = cv.imread('Github/Solar-Panel-Cleaning-Robot/Pictures/solar2.jpeg')
-    img3 = cv.imread('Github/Solar-Panel-Cleaning-Robot/Pictures/solar3.jpeg')
-    img4 = cv.imread('Github/Solar-Panel-Cleaning-Robot/Pictures/solar4.jpeg')
-    
-    img_gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    img2_gray = cv.cvtColor(img2, cv.COLOR_BGR2GRAY)
-    img3_gray = cv.cvtColor(img3, cv.COLOR_BGR2GRAY)
-    img4_gray = cv.cvtColor(img4, cv.COLOR_BGR2GRAY)
-
-    mask = np.zeros(img.shape, np.uint8)
-    mask2 = np.zeros(img2.shape, np.uint8)
-    mask3 = np.zeros(img3.shape, np.uint8)
-    mask4 = np.zeros(img4.shape, np.uint8)
+    gray = grayscale_images(images)
+    gray = gray[index]
+    img = images[index]
 
     while True:
-        
         low = cv.getTrackbarPos("L", "Trackbars")
         upper = cv.getTrackbarPos("U", "Trackbars")
 
-        edges = cv.Canny(img_gray, low, upper)
-        edges2 = cv.Canny(img2_gray, low, upper)
-        edges3 = cv.Canny(img3_gray, low, upper)
-        edges4 = cv.Canny(img4_gray, low, upper)
+        mask = mask_images(images)
+        mask = mask[index]
 
-        boxes, _ = cv.findContours(edges, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-        boxes2, _ = cv.findContours(edges2, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-        boxes3, _ = cv.findContours(edges3, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-        boxes4, _ = cv.findContours(edges4, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
-
-        # cv.drawContours(img3, boxes, -1, (255,255,0), 3)
-
-        cv.fillPoly(mask, boxes, (255,255,255))
-        cv.fillPoly(mask2, boxes2, (255,255,255))
-        cv.fillPoly(mask3, boxes3, (255,255,255))
-        cv.fillPoly(mask4, boxes4, (255,255,255))
-
-        result = np.hstack((cv.bitwise_and(img, mask), img))
-        result2 = np.hstack((cv.bitwise_and(img2, mask2), img2))
-        result3 = np.hstack((cv.bitwise_and(img3, mask3), img3))
-        result4 = np.hstack((cv.bitwise_and(img4, mask4),img4))
-
-        cv.imshow('Trackbars', result3)
+        boxes = find_edges(gray, low, upper)
+        mask = cv.fillPoly(mask, boxes, (255,255,255))
+        panel = cv.bitwise_and(img, mask)
         
-        cv.imshow('First', result)
-        cv.imshow('Second', result2)
-        cv.imshow('Fourth', result4)
+        result = np.hstack((panel, img))
+        edges = cv.Canny(gray, low, upper)
+        cv.imshow('Trackbars', result)
+        cv.imshow('Edges', edges)
+        cv.waitKey(1)
+
+
+if __name__ == "__main__":
+    
+
+    images = color.load_images('Github/Solar-Panel-Cleaning-Robot/Pictures')
+
+    threshold_finder(images, 0)
+    
+    masks = mask_images(images)
+    gray_images = grayscale_images(images)
+    
+    low = 72
+    upper = 350
+        
+    while True:
+        
+        count = 0
+        for img in images:
+            boxes = find_edges(gray_images[count], low, upper)
+            
+            masks[count] = cv.fillPoly(masks[count], boxes, (255,255,255))
+            
+            # cv.drawContours(img, boxes, -1, (255,255,0), 3)
+            panel = cv.bitwise_and(img, masks[count])
+            
+            result = np.hstack((panel, img))
+            
+            if count == 0:
+                cv.imshow('Trackbars', result)
+            else:
+                cv.imshow('solar'+str(count+1), result)
+            count += 1
 
         # If the user presses ESC then exit the program
-        key = cv.waitKey(1)
+        key = cv.waitKey(0)
         if key == 27:
             break
 cv.destroyAllWindows()
