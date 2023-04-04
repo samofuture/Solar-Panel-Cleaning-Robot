@@ -86,13 +86,13 @@ def filter_images(images, masks):
         
 if __name__ == "__main__":
 
-    images = load_images('Solar-Panel-Cleaning-Robot/Pictures/')
+    images = load_images('../Pictures/')
     
     # Tint: B-141 G-181 R-217
     tinted_images = tint_images(images)
 
     # Specify Image to Show
-    count = 0
+    count = 2
     img = images[count]
     tint_img = tinted_images[count]
 
@@ -111,8 +111,8 @@ if __name__ == "__main__":
     filtered_tinted_images = filter_images(tinted_images, masks)
     
     # Find new average colors
-    clean_result = np.hstack((filtered_clean_images[count], img))
-    tinted_result = np.hstack((filtered_tinted_images[count], tint_img))
+    clean_result = np.hstack((img, tint_img))
+    tinted_result = np.hstack((filtered_clean_images[count], filtered_tinted_images[count]))
     
     # Display After Mask Information
     print("\nAverage Color After Masks (B, G, R)")
@@ -124,3 +124,12 @@ if __name__ == "__main__":
     # Display Selected Image
     cv.imshow('Result', np.hstack((clean_result, tinted_result)))
     cv.waitKey(0)
+    os.chdir('../Filtered Pictures')
+    count = 1
+    for i in filtered_clean_images:
+        cv.imwrite('Filtered_Clean_' + str(count) + '.jpg', i)
+        count += 1
+    count = 1
+    for i in filtered_tinted_images:
+        cv.imwrite('Filtered_Tinted_' + str(count) + '.jpg', i)
+        count += 1
