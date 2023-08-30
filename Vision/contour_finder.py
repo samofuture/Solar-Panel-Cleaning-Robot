@@ -2,15 +2,28 @@ import cv2 as cv
 import numpy as np
 import color_analyzer as color
 
+"""
+This is here as a place holder for trackbars
+"""
 def nothing(x):
     pass
 
+"""
+mask_images
+@param: list of images
+@return: list of the masks of the images
+"""
 def mask_images(images):
     masks = []
     for img in images:
         masks.append(np.zeros(img.shape, np.uint8))
     return masks
 
+"""
+grayscale_images
+@param: list of images
+@return: list of the images grayscaled
+"""
 def grayscale_images(images):
     gray_images = []
     for img in images:
@@ -18,12 +31,22 @@ def grayscale_images(images):
         
     return gray_images
 
+"""
+find_edges
+@param: the grayscale image, lower and upper threshold for edge detection
+@return: the edges of the image
+"""
 def find_edges(gray_img, low, upper):
     edges = cv.Canny(gray_img, low, upper)
     boxes, _ = cv.findContours(edges, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
     
     return boxes
 
+"""
+threshold_finder
+@param: list of images, which image to analyze
+@return: NULL
+"""
 def threshold_finder(images, index):
     cv.namedWindow("Trackbars")
     
@@ -53,40 +76,10 @@ def threshold_finder(images, index):
 
 
 if __name__ == "__main__":
-    
 
     images = color.load_images('Github/Solar-Panel-Cleaning-Robot/Pictures')
 
     threshold_finder(images, 0)
     
-    masks = mask_images(images)
-    gray_images = grayscale_images(images)
-    
-    low = 72
-    upper = 350
-        
-    while True:
-        
-        count = 0
-        for img in images:
-            boxes = find_edges(gray_images[count], low, upper)
-            
-            masks[count] = cv.fillPoly(masks[count], boxes, (255,255,255))
-            
-            # cv.drawContours(img, boxes, -1, (255,255,0), 3)
-            panel = cv.bitwise_and(img, masks[count])
-            
-            result = np.hstack((panel, img))
-            
-            if count == 0:
-                cv.imshow('Trackbars', result)
-            else:
-                cv.imshow('solar'+str(count+1), result)
-            count += 1
-
-        # If the user presses ESC then exit the program
-        key = cv.waitKey(0)
-        if key == 27:
-            break
 cv.destroyAllWindows()
         

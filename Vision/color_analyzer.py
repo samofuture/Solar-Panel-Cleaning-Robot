@@ -3,6 +3,11 @@ import numpy as np
 import os
 import contour_finder as con
 
+"""
+load_images
+@param: folder (string)
+@return: list of images in folder
+"""
 def load_images(folder):
     images = []
     for filename in os.listdir(folder):
@@ -12,12 +17,22 @@ def load_images(folder):
             print('Name: ' + filename)
     return images
 
+"""
+display_images
+@param: list of images
+@return: NULL
+"""
 def display_images(images):
     count = 1
     for img in images:
         cv.imshow('solar'+str(count), img)
         count += 1
 
+"""
+average_color
+@param: image
+@return: list of the average blue, green, and red colors
+"""
 def average_color(img):
     blue = []
     green = []
@@ -36,6 +51,11 @@ def average_color(img):
     red_avg = np.round(np.average(red))
     return [blue_avg, green_avg, red_avg]
 
+"""
+tint_images
+@param: images
+@return: images
+"""
 def tint_images(images):
     fused_images = []
     for img in images:
@@ -43,6 +63,11 @@ def tint_images(images):
         fused_images.append(cv.addWeighted(img, 0.5, tint_img, 0.5, 0))
     return fused_images
 
+"""
+filter_images
+@param: images, masks
+@return: images with masks applied
+"""
 def filter_images(images, masks):
     filtered_images = []
     count = 0
@@ -59,29 +84,52 @@ def filter_images(images, masks):
         count += 1
     return filtered_images
         
-
 if __name__ == "__main__":
 
-    images = load_images('Github/Solar-Panel-Cleaning-Robot/Pictures')
-    # Tint: B-141 G-181 R-217
+    images = load_images('../Pictures/')
     
+    # Tint: B-141 G-181 R-217
     tinted_images = tint_images(images)
-    # display_images(images)
-    # display_images(tinted_images)
-    count = 0
+
+    # Specify Image to Show
+    count = 2
     img = images[count]
     tint_img = tinted_images[count]
+
+    # Display Before Mask Information
+    print("Average Color Before Masks (B, G, R)")
+    print("Clean:")
     print(average_color(img))
+    print("Dirty:")
     print(average_color(tint_img))
 
+    # Find the masks of the images based on the clean image
     masks = con.mask_images(images)
 
+    # Apply the masks to both sets of images
     filtered_clean_images = filter_images(images, masks)
     filtered_tinted_images = filter_images(tinted_images, masks)
     
-    clean_result = np.hstack((filtered_clean_images[count], img))
-    tinted_result = np.hstack((filtered_tinted_images[count], tint_img))
-    print(average_color(clean_result))
-    print(average_color(tinted_result))
+    # Find new average colors
+    clean_result = np.hstack((img, tint_img))
+    tinted_result = np.hstack((filtered_clean_images[count], filtered_tinted_images[count]))
+    
+    # Display After Mask Information
+    print("\nAverage Color After Masks (B, G, R)")
+    print("Clean: ")
+    print(average_color(filtered_clean_images[count]))
+    print("Dirty: ")
+    print(average_color(filtered_tinted_images[count]))
+
+    # Display Selected Image
     cv.imshow('Result', np.hstack((clean_result, tinted_result)))
     cv.waitKey(0)
+    os.chdir('../Filtered Pictures')
+    count = 1
+    for i in filtered_clean_images:
+        cv.imwrite('Filtered_Clean_' + str(count) + '.jpg', i)
+        count += 1
+    count = 1
+    for i in filtered_tinted_images:
+        cv.imwrite('Filtered_Tinted_' + str(count) + '.jpg', i)
+        count += 1
