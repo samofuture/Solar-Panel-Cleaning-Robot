@@ -1,1 +1,1 @@
-from roboclaw_python import Roboclaw
+from roboclaw_python import roboclaw_3
