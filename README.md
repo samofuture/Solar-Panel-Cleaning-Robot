@@ -1,5 +1,12 @@
 # Solar Panel Cleaning Robot
 ----
+# TODO List:
+----
+- [ ] Connecting PS4 Controller to RPi: https://salamwaddah.com/blog/connecting-ps4-controller-to-raspberry-pi-via-bluetooth#:~:text=On%20your%20Raspberry%20Pi%20top,start%20scanning%20nearby%20Bluetooth%20devices.&text=Done!,screen%20with%20your%20controller%20connected
+- [ ] Using Chrontab to autostart this function
+- [ ] Run initial setup on roboclaws (need Windows computer to run BasicMicro Motion Studio)
+- [ ] Setup user controller functions in python
+----
 ## Vision Folder
 Vision folder contains a script to identify the solar panel "contours" and one to identify the color within that shape
 Also includes test images
