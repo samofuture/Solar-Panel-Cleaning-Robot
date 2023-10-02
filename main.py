@@ -7,13 +7,14 @@
 # --> If Manual, Receive input from the controller
 
 import time
-import datetime
-from astral.sun import sun
-from astral import LocationInfo
-
+import datetime as dt
+from pytz import timezone
+from skyfield import almanac
+from skyfield.api import N, W, wgs84, load
+from calendar import timegm
 
 LATITUDE = 35.302078
-LONGITUDE = -80.731392
+LONGITUDE = 80.731392 # W is negative
 
 def epoch_to_date(epoch: float) -> str:
 
@@ -21,22 +22,52 @@ def epoch_to_date(epoch: float) -> str:
 
     return date_str
 
-def get_solar_noon() -> float:
-    location = LocationInfo("Charlotte", "USA", LATITUDE, LONGITUDE)
+def date_to_epoch(date: str) -> int:
+    datetime_obj = time.strptime(date, "%Y-%m-%d %H:%M:%S")
 
-    current_date = datetime.date.today()
-
-    s = sun(location.observer, date=current_date)
-    solar_noon = s['noon']
-
-    # print("Solar Noon (Apparent Zenith) Time:", solar_noon)
+    epoch = timegm(datetime_obj)
     
-    return solar_noon.timestamp()
+    return epoch
+
+def get_solar_noon() -> str:
+    # This Method comes from here: 
+    # https://rhodesmill.org/skyfield/examples.html
+
+    zone = timezone('US/Eastern')
+    now = zone.localize(dt.datetime.now())
+    midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
+    next_midnight = midnight + dt.timedelta(days=1)
+
+    ts = load.timescale()
+    t0 = ts.from_datetime(midnight)
+    t1 = ts.from_datetime(next_midnight)
+    eph = load('de421.bsp')
+    bluffton = wgs84.latlon(LATITUDE * N, LONGITUDE * W)
+
+    f = almanac.meridian_transits(eph, eph['Sun'], bluffton)
+    times, events = almanac.find_discrete(t0, t1, f)
+
+    # Select transits instead of antitransits.
+    times = times[events == 1]
+
+    t = times[0]
+    tstr = str(t.astimezone(zone))[:19]
+    epoch = date_to_epoch(tstr)
+
+    return tstr
 
 
 if __name__ == '__main__':
     start = time.clock_gettime(0)
-    date = epoch_to_date(start)
 
-    solar_noon = get_solar_noon(date)
+    solar_noon = get_solar_noon()
+
+    print(start)
     print(solar_noon)
+
+    if (start - solar_noon > 0 and start - solar_noon < 60):
+        # Take a picture and analyze it
+        pass
+    else:
+        # wait until that epoch occurs
+        pass
