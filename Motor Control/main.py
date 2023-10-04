@@ -1,15 +1,16 @@
 from roboclaw_python.roboclaw_3 import Roboclaw as rc
+from pyPS4Controller.controller import Controller
 import numpy as np
 
 # Useful resource for roboclaw library: https://resources.basicmicro.com/using-the-roboclaw-python-library/
 
 class MotorControl:
-    ppr: float = 1,425.2
+    ppr: float = 1425.2
     def __init__(self) -> None:
-        self.motors = rc("/dev/ttyS0", 38400)
-        self.left_motors = 0x80
+        self.motors = rc("/dev/ttyACM0", 38400)
+        self.left_motors = 0x81
         self.right_motors = 0x81
-        self.brush_motor = 0x82
+        self.brush_motor = 0x80
         self.motors.Open()
         # Reverse Direction of motors if necessary here
 
@@ -27,9 +28,9 @@ class MotorControl:
         buffer = 1
 
         # Need to test if these execute simultaneously or not
-        self.motors.SpeedAccelDeccelPositionM1M2(self,self.left_motors,accel,speed,deccel,pos,
+        self.motors.SpeedAccelDeccelPositionM1M2(self.left_motors,accel,speed,deccel,pos,
                                                  accel,speed,deccel,pos,buffer)
-        self.motors.SpeedAccelDeccelPositionM1M2(self,self.right_motors,accel,speed,deccel,pos,
+        self.motors.SpeedAccelDeccelPositionM1M2(self.right_motors,accel,speed,deccel,pos,
                                                  accel,speed,deccel,pos,buffer)
 
     def stop_robot(self):
@@ -50,3 +51,22 @@ class MotorControl:
         self.motors.SpeedAccelM1M2(self.left_motors, accel, speed, speed)
         self.motors.SpeedAccelM1M2(self.right_motors, accel, speed, speed)
         # self.motors.ForwardMixed(self.left_motors, speed)
+
+class MyController(Controller):
+
+    def __init__(self, **kwargs):
+        Controller.__init__(self, **kwargs)
+        self.mc = MotorControl()
+
+    def on_x_press(self):
+       print("Hello world")
+       self.mc.move_brush('L', 67)
+
+
+    def on_circle_release(self):
+       print("Goodbye world")
+       self.mc.move_brush('R', 67)
+
+controller = MyController(interface="/dev/input/js1", connecting_using_ds4drv=False)
+# you can start listening before controller is paired, as long as you pair it within the timeout window
+controller.listen(timeout=60)
