@@ -36,7 +36,7 @@ def get_solar_noon() -> str:
     ts = load.timescale()
     t0 = ts.from_datetime(midnight)
     t1 = ts.from_datetime(next_midnight)
-    eph = load('de421.bsp')
+    eph = load('Solar_Time/de421.bsp')
     bluffton = wgs84.latlon(LATITUDE * N, LONGITUDE * W)
 
     f = almanac.meridian_transits(eph, eph['Sun'], bluffton)

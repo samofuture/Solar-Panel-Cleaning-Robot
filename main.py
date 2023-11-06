@@ -5,69 +5,38 @@
     # Reset Timer to take Picture
 
 # --> If Manual, Receive input from the controller
-
-import time
-import datetime as dt
-from pytz import timezone
-from skyfield import almanac
-from skyfield.api import N, W, wgs84, load
-from calendar import timegm
-
-LATITUDE = 35.302078
-LONGITUDE = 80.731392 # W is negative
-
-def epoch_to_date(epoch: float) -> str:
-
-    date_str = time.strftime('%Y-%m-%d', time.localtime(epoch))
-
-    return date_str
-
-def date_to_epoch(date: str) -> int:
-    datetime_obj = time.strptime(date, "%Y-%m-%d %H:%M:%S")
-
-    epoch = timegm(datetime_obj)
-    
-    return epoch
-
-def get_solar_noon() -> str:
-    # This Method comes from here: 
-    # https://rhodesmill.org/skyfield/examples.html
-
-    zone = timezone('US/Eastern')
-    now = zone.localize(dt.datetime.now())
-    midnight = now.replace(hour=0, minute=0, second=0, microsecond=0)
-    next_midnight = midnight + dt.timedelta(days=1)
-
-    ts = load.timescale()
-    t0 = ts.from_datetime(midnight)
-    t1 = ts.from_datetime(next_midnight)
-    eph = load('de421.bsp')
-    bluffton = wgs84.latlon(LATITUDE * N, LONGITUDE * W)
-
-    f = almanac.meridian_transits(eph, eph['Sun'], bluffton)
-    times, events = almanac.find_discrete(t0, t1, f)
-
-    # Select transits instead of antitransits.
-    times = times[events == 1]
-
-    t = times[0]
-    tstr = str(t.astimezone(zone))[:19]
-    epoch = date_to_epoch(tstr)
-
-    return tstr
-
+import os
+import sys
+vision_dir = os.path.abspath('Vision')
+sys.path.append(vision_dir)
+time_dir = os.path.abspath('Solar_Time')
+sys.path.append(time_dir)
+import remote_control as rc
+from Solar_Time import solar_time as st
+from Vision import color_analyzer as ca
+from motor_control import MotorControl as mc
 
 if __name__ == '__main__':
-    start = time.clock_gettime(0)
-
-    solar_noon = get_solar_noon()
-
-    print(start)
-    print(solar_noon)
-
-    if (start - solar_noon > 0 and start - solar_noon < 60):
-        # Take a picture and analyze it
-        pass
-    else:
-        # wait until that epoch occurs
-        pass
+    next_solar_noon = st.date_to_epoch(st.get_solar_noon())
+    need_to_clean: bool = False
+    while True:
+        curr_time = st.get_current_time()
+        
+        # If Manual Button is pressed
+        # TODO: Read button input
+        if True:
+            controller = rc.MyController(interface="/dev/input/js0", connecting_using_ds4drv=False)
+            # you can start listening before controller is paired, as long as you pair it within the timeout window
+            controller.listen(timeout=60)
+            # can add connect/disconnect functions to listen
+            # holding ps button on controller for 10 seconds should turn off the controller
+        # If it's time to check the panel
+        elif (curr_time - next_solar_noon > 0 and curr_time - next_solar_noon < 60):
+            # TODO: Figure out how to take a picture here
+            new_img = None
+            if not need_to_clean and ca.panel_is_dirty(new_img):
+                need_to_clean = True
+            
+        # If it's time to clean the panel
+        elif need_to_clean:
+            mc.clean_solar_panel()

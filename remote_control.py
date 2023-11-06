@@ -48,4 +48,3 @@ class MyController(Controller):
         distance_traveled = self.mc.find_distance('L')
         print(distance_traveled)
         return distance_traveled
-
