@@ -68,7 +68,7 @@ filter_images
 @param: images, masks
 @return: images with masks applied
 """
-def filter_images(images, masks):
+def filter_images(images: list, masks):
     filtered_images = []
     count = 0
     for img in images:
@@ -83,7 +83,26 @@ def filter_images(images, masks):
         filtered_images.append(cv.bitwise_and(img, masks[count]))
         count += 1
     return filtered_images
-        
+
+def panel_is_dirty(new_img: str) -> bool:
+    # TODO: Make sure that the path is correct
+    clean_image = cv.imread(os.path.join('../Pictures/', 'clean.jpg'))
+
+    # Find out how to take a picture and store it here
+    dirty_image = cv.imread(os.path.join('../Pictures/', new_img))
+
+    # Find the masks of the images based on the clean image
+    mask = con.mask_images(clean_image)
+
+    filtered_images = filter_images([clean_image, dirty_image], mask)
+    clean_color_avg = average_color(filtered_images[0])
+    dirty_color_avg = average_color(filtered_images[1])
+
+    if (dirty_color_avg[1] - 30 > clean_color_avg[1]) and (dirty_color_avg[2] - 30 > clean_color_avg[2]):
+        return True
+    
+    return False
+
 if __name__ == "__main__":
 
     images = load_images('../Pictures/')
