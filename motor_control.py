@@ -12,7 +12,8 @@ class MotorControl:
         self.left_motors = 0x81
         self.right_motors = 0x81
         self.brush_motor = 0x80
-        self.motors.Open()
+        result = self.motors.Open()
+        print(result)
         # Reverse Direction of motors if necessary here
 
     def _distance_to_count(self, distance_cm: float, radius_cm: float) -> float:
@@ -50,9 +51,9 @@ class MotorControl:
     def move_brush(self, dir: str, speed: int) -> None:
         # Moves the Brush
         if dir == 'L':
-            self.motors.ForwardM1(self.brush_motor, speed)
+            self.motors.ForwardM2(self.brush_motor, speed)
         elif dir == 'R':
-            self.motors.BackwardM1(self.brush_motor, speed)
+            self.motors.BackwardM2(self.brush_motor, speed)
 
     def move_robot(self, dir: str, speed: int):
         # Moves robot manually
@@ -62,7 +63,10 @@ class MotorControl:
             self.motors.BackwardMixed(self.brush_motor, speed)
         # self.motors.ForwardBackwardMixed(self.brush_motor, speed)
 
-    def read_encoders(self) -> tuple:
+    def read_encoders(self):
+        return self.motors.ReadEncM2(self.brush_motor), 0
+    
+    def _read_encoders(self) -> tuple:
         left_m1 = self.motors.ReadEncM1(self.left_motors)
         left_m2 = self.motors.ReadEncM2(self.left_motors)
         right_m1 = self.motors.ReadEncM1(self.right_motors)
@@ -71,8 +75,9 @@ class MotorControl:
 
     def find_distance(self, side: str = 'B') -> float:
         left_enc, right_enc = self.read_encoders()
-        left_dist = self._count_to_distance(np.mean(left_enc))
-        right_dist = self._count_to_distance(np.mean(right_enc))
+        wheel_radius = 4*2.54/2
+        left_dist = self._count_to_distance(np.mean(left_enc), wheel_radius)
+        right_dist = self._count_to_distance(np.mean(right_enc), wheel_radius)
         if side == 'B':
             return np.mean([left_dist, right_dist])
         elif side == 'L':

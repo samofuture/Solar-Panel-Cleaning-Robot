@@ -4,9 +4,9 @@ from motor_control import MotorControl
 
 class MyController(Controller):
 
-    def __init__(self, **kwargs):
+    def __init__(self, motor_controller: MotorControl, **kwargs):
         Controller.__init__(self, **kwargs)
-        self.mc = MotorControl()
+        self.mc = motor_controller
         self.brush_dir: str = 'R'
 
     def on_x_press(self):
@@ -25,6 +25,7 @@ class MyController(Controller):
     def on_R2_press(self, value):
         # supposed to be 0-127 here but for some reason turning it 'L' runs into a
         # Input/output error with the roboclaw library 
+        print(value)
         speed = int(np.interp(value, [-32767, 32767], [0, 126]))
         # print(speed)
         self.mc.move_brush(self.brush_dir, speed)
@@ -48,3 +49,7 @@ class MyController(Controller):
         distance_traveled = self.mc.find_distance('L')
         print(distance_traveled)
         return distance_traveled
+
+    def on_down_arrow_press(self):
+        print("here")
+        return None

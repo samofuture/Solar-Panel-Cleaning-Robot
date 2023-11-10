@@ -11,12 +11,16 @@ vision_dir = os.path.abspath('Vision')
 sys.path.append(vision_dir)
 time_dir = os.path.abspath('Solar_Time')
 sys.path.append(time_dir)
+import RPi.GPIO as GPIO
+
 import remote_control as rc
 from Solar_Time import solar_time as st
 from Vision import color_analyzer as ca
 from motor_control import MotorControl as mc
 
 if __name__ == '__main__':
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(channel, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     next_solar_noon = st.date_to_epoch(st.get_solar_noon())
     need_to_clean: bool = False
     while True:
@@ -24,13 +28,14 @@ if __name__ == '__main__':
         
         # If Manual Button is pressed
         # TODO: Read button input
-        if True:
-            controller = rc.MyController(interface="/dev/input/js0", connecting_using_ds4drv=False)
+        if GPIO.input(7):
+            motor_controller = mc()
+            controller = rc.MyController(motor_controller=motor_controller, interface="/dev/input/js0", connecting_using_ds4drv=False)
             # you can start listening before controller is paired, as long as you pair it within the timeout window
-            controller.listen(timeout=60)
+            controller.listen(timeout=30)
             # can add connect/disconnect functions to listen
             # holding ps button on controller for 10 seconds should turn off the controller
-        # If it's time to check the panel
+	    # If it's time to check the panel
         elif (curr_time - next_solar_noon > 0 and curr_time - next_solar_noon < 60):
             # TODO: Figure out how to take a picture here
             new_img = None
@@ -40,3 +45,5 @@ if __name__ == '__main__':
         # If it's time to clean the panel
         elif need_to_clean:
             mc.clean_solar_panel()
+            
+        print("After if statements")
