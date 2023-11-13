@@ -22,8 +22,8 @@ from motor_control import MotorControl as mc
 if __name__ == '__main__':
     # This sets it up so that the button is 'pressed' if it is connected to ground
     manual_button = Button(4)
-    print(f"Next Solar Noon: {st.get_solar_noon()}")
-    next_solar_noon = st.date_to_epoch(st.get_solar_noon())
+
+    next_solar_noon = st.datetime_to_epoch(st.get_solar_noon())
     need_to_clean: bool = False
     
     print(f"Next Solar Noon: {next_solar_noon}")
@@ -31,14 +31,12 @@ if __name__ == '__main__':
         curr_time = st.get_current_time()
         
         # If Manual Button is pressed
-        # TODO: Read button input
         if manual_button.is_pressed:
             motor_controller = mc()
             controller = rc.MyController(motor_controller=motor_controller, manual_button=manual_button, interface="/dev/input/js0", connecting_using_ds4drv=False)
             # you can start listening before controller is paired, as long as you pair it within the timeout window
-            controller.listen(timeout=30)
-            # can add connect/disconnect functions to listen
-            # holding ps button on controller for 10 seconds should turn off the controller
+            controller.listen(timeout=30, on_connect=print("Connected to Controller"), on_disconnect=print("Disconnected from Controller"))
+
 	    # If it's time to check the panel
         elif (curr_time - next_solar_noon > 0 and curr_time - next_solar_noon < 60):
             # TODO: Figure out how to take a picture here
@@ -49,6 +47,8 @@ if __name__ == '__main__':
         # If it's time to clean the panel
         elif need_to_clean:
             mc.clean_solar_panel()
+            next_solar_noon = st.datetime_to_epoch(st.get_solar_noon())
+            print(f"Next Solar Noon: {next_solar_noon}")
             
         print(f"Current Time: {curr_time}")
         sleep(0.5)
