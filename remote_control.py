@@ -1,13 +1,15 @@
 import numpy as np
+from gpiozero import Button
 from pyPS4Controller.controller import Controller
 from motor_control import MotorControl
 
 class MyController(Controller):
 
-    def __init__(self, motor_controller: MotorControl, **kwargs):
+    def __init__(self, motor_controller: MotorControl, manual_button: Button, **kwargs):
         Controller.__init__(self, **kwargs)
         self.mc = motor_controller
         self.brush_dir: str = 'R'
+        self.button: Button = manual_button
 
     def on_x_press(self):
         print("Stop")
@@ -53,3 +55,7 @@ class MyController(Controller):
     def on_down_arrow_press(self):
         print("here")
         return None
+    
+    def on_playstation_button_press(self):
+        if not self.button.is_pressed:
+            self.stop = True
