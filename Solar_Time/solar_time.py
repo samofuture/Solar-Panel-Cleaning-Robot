@@ -3,7 +3,8 @@ import datetime as dt
 from pytz import timezone
 from skyfield import almanac
 from skyfield.api import N, W, wgs84, load
-from calendar import timegm
+from astral.sun import sun
+from astral import LocationInfo
 
 LATITUDE = 35.302078
 LONGITUDE = 80.731392 # W is negative
@@ -17,14 +18,25 @@ def epoch_to_date(epoch: float) -> str:
 
     return date_str
 
-def date_to_epoch(date: str) -> int:
-    datetime_obj = time.strptime(date, "%Y-%m-%d %H:%M:%S")
+def date_to_epoch(date: str, time_zone: str = 'US/Eastern') -> int:
+    datetime_obj = dt.datetime.strptime(date, "%Y-%m-%d %H:%M:%S %Z")
 
-    epoch = timegm(datetime_obj)
+    datetime_obj = timezone(time_zone).localize(datetime_obj)
     
+    epoch = int(datetime_obj.timestamp())
     return epoch
 
-def get_solar_noon() -> str:
+def get_solar_noon(time_zone: str = 'US/Eastern') -> str:
+    location = LocationInfo("Charlotte", "USA", "UTC", LATITUDE, -LONGITUDE)
+    today_date = dt.datetime.now().date()
+    solar_noon_utc = sun(location.observer, date=today_date)['noon']
+    print(solar_noon_utc)
+    solar_noon_str = solar_noon_utc.strftime('%Y-%m-%d %H:%M:%S %Z')
+    # solar_noon_local = timezone(time_zone).localize(solar_noon_utc)
+    print(date_to_epoch(solar_noon_str))
+    return solar_noon
+
+def _get_solar_noon() -> str:
     # This Method comes from here: 
     # https://rhodesmill.org/skyfield/examples.html
 
