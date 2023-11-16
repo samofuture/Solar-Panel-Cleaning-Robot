@@ -48,7 +48,7 @@ if __name__ == '__main__':
         # If it's time to clean the panel
         elif need_to_clean:
             mc.clean_solar_panel()
-            next_solar_noon = st.datetime_to_epoch(st.get_solar_noon())
+            # next_solar_noon = st.datetime_to_epoch(st.get_solar_noon())
             print(f"Next Solar Noon: {next_solar_noon}")
             
         print(f"Current Time: {curr_time}")

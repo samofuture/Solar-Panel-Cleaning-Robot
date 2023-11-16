@@ -7,15 +7,16 @@ import numpy as np
 class MotorControl:
     ppr: float = 1425.2 # Pulses per Revolution
     def __init__(self) -> None:
-        self.right_motors = rc("/dev/ttyACM0", 38400)
+        self.right_motors = rc("/dev/ttyACM0", 38400)   # This is the motor controller with the main housing
         self.left_motors = rc("/dev/ttyACM1", 38400)
         self.brush_motor = rc("/dev/ttyACM2", 38400)
-        self.left_motors = 0x81
-        self.right_motors = 0x82
-        self.brush_motor = 0x82 # Probably 0x81
-        result = self.motors.Open()
-        print(result)
-        # Reverse Direction of motors if necessary here
+        self.address = 0x81
+        right_status = self.right_motors.Open()
+        left_status = self.left_motors.Open()
+        brush_status = self.brush_motor.Open()
+        print("Right Motors Status:", right_status)
+        print("Left Motors Status:", left_status)
+        print("Brush Motors Status:", brush_status)
 
     def _distance_to_count(self, distance_cm: float, radius_cm: float) -> float:
         circumference = 2 * radius_cm * np.pi
@@ -32,22 +33,13 @@ class MotorControl:
     def move_robot_distance(self, dir: str, speed: int, distance_cm: float):
         # Moves the robot 
         pos = self._distance_to_count(distance_cm, 4*2.54)
-        accel = 1
-        deccel = 1
-        buffer = 1
-
-        # Need to test if these execute simultaneously or not
-        self.motors.SpeedAccelDeccelPositionM1M2(self.left_motors,accel,speed,deccel,pos,
-                                                 accel,speed,deccel,pos,buffer)
-        self.motors.SpeedAccelDeccelPositionM1M2(self.right_motors,accel,speed,deccel,pos,
-                                                 accel,speed,deccel,pos,buffer)
 
     def stop_robot(self):
         # Stops the Robot (Should Coast)
         # Commented out for now to test a single one
         # self.motors.DutyM1M2(self.left_motors, 0, 0)
         # self.motors.DutyM1M2(self.right_motors, 0, 0)
-        self.motors.DutyM1M2(self.brush_motor, 0, 0)
+        self.brush_motor.DutyM1M2(self.address, 0, 0)
 
     def move_brush(self, dir: str, speed: int) -> None:
         # Moves the Brush
@@ -89,4 +81,4 @@ class MotorControl:
             return 0
         
     def clean_solar_panel(self):
-        
+        self.move_robot_distance('R', 20, 10)

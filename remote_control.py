@@ -5,21 +5,14 @@ from motor_control import MotorControl
 
 class MyController(Controller):
 
-    def __init__(self, manual_button: Button, **kwargs):
+    def __init__(self, motor_controller: MotorControl, manual_button: Button, **kwargs):
         Controller.__init__(self, **kwargs)
         self.mc = motor_controller
-        self.brush_dir: str = 'R'
         self.button: Button = manual_button
 
     def on_x_press(self):
         print("Stop")
         self.mc.stop_robot()
-
-    def on_triangle_press(self):
-        if self.brush_dir == 'L':
-            self.brush_dir = 'R'
-        else:
-            self.brush_dir = 'L'
 
     def on_circle_release(self):
        self.mc.move_brush('R', 67)
@@ -32,16 +25,17 @@ class MyController(Controller):
         # print(speed)
         self.mc.move_brush('R', speed)
 
+    def on_R2_release(self):
+        self.mc.move_brush('R', 0)
+
     def on_L2_press(self, value):
         print(value)
         speed = int(np.interp(value, [-32767, 32767], [0, 126]))
         self.mc.move_brush('L', speed)
 
-    def on_R2_release(self):
-        self.mc.move_brush('R', 0)
-
     def on_L2_release(self):
         self.mc.move_brush('L', 0)
+    
     def on_R3_up(self, value):
         value = abs(value)
         speed = int(np.interp(value, [0, 32767], [0, 126]))
