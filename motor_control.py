@@ -11,8 +11,8 @@ class MotorControl:
         self.left_motors = rc("/dev/ttyACM1", 38400)
         self.brush_motor = rc("/dev/ttyACM2", 38400)
         self.left_motors = 0x81
-        self.right_motors = 0x81
-        self.brush_motor = 0x80
+        self.right_motors = 0x82
+        self.brush_motor = 0x82 # Probably 0x81
         result = self.motors.Open()
         print(result)
         # Reverse Direction of motors if necessary here
@@ -52,9 +52,9 @@ class MotorControl:
     def move_brush(self, dir: str, speed: int) -> None:
         # Moves the Brush
         if dir == 'L':
-            self.motors.ForwardM2(self.brush_motor, speed)
+            self.motors.ForwardM1(self.brush_motor, speed)
         elif dir == 'R':
-            self.motors.BackwardM2(self.brush_motor, speed)
+            self.motors.BackwardM1(self.brush_motor, speed)
 
     def move_robot(self, dir: str, speed: int):
         # Moves robot manually
@@ -89,4 +89,4 @@ class MotorControl:
             return 0
         
     def clean_solar_panel(self):
-        self.move_brush('R', 63)
+        

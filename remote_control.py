@@ -30,11 +30,18 @@ class MyController(Controller):
         print(value)
         speed = int(np.interp(value, [-32767, 32767], [0, 126]))
         # print(speed)
-        self.mc.move_brush(self.brush_dir, speed)
+        self.mc.move_brush('R', speed)
+
+    def on_L2_press(self, value):
+        print(value)
+        speed = int(np.interp(value, [-32767, 32767], [0, 126]))
+        self.mc.move_brush('L', speed)
 
     def on_R2_release(self):
-        self.mc.move_brush(self.brush_dir, 0)
+        self.mc.move_brush('R', 0)
 
+    def on_L2_release(self):
+        self.mc.move_brush('L', 0)
     def on_R3_up(self, value):
         value = abs(value)
         speed = int(np.interp(value, [0, 32767], [0, 126]))
