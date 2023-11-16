@@ -33,7 +33,7 @@ if __name__ == '__main__':
         curr_time += 1
         # If Manual Button is pressed
         if manual_button.is_pressed:
-            motor_controller = mc()
+            motor_controller = mc(manual_button)
             controller = rc.MyController(motor_controller=motor_controller, manual_button=manual_button, interface="/dev/input/js0", connecting_using_ds4drv=False)
             # you can start listening before controller is paired, as long as you pair it within the timeout window
             controller.listen(timeout=30, on_connect=print("Connected to Controller"), on_disconnect=print("Disconnected from Controller"))

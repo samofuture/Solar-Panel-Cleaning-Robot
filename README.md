@@ -2,7 +2,6 @@
 ----
 # TODO List:
 ----
-- [ ] Connecting PS4 Controller to RPi
 - [ ] Using Chrontab to autostart this function
 - [ ] Run initial setup on roboclaws (need Windows computer to run BasicMicro Motion Studio)
 - [ ] Setup user controller functions in python
