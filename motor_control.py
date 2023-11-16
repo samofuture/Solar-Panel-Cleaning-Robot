@@ -1,5 +1,4 @@
 from roboclaw_python.roboclaw_3 import Roboclaw as rc
-from pyPS4Controller.controller import Controller
 import numpy as np
 
 # Useful resource for roboclaw library: https://resources.basicmicro.com/using-the-roboclaw-python-library/
@@ -8,7 +7,9 @@ import numpy as np
 class MotorControl:
     ppr: float = 1425.2 # Pulses per Revolution
     def __init__(self) -> None:
-        self.motors = rc("/dev/ttyACM0", 38400)
+        self.right_motors = rc("/dev/ttyACM0", 38400)
+        self.left_motors = rc("/dev/ttyACM1", 38400)
+        self.brush_motor = rc("/dev/ttyACM2", 38400)
         self.left_motors = 0x81
         self.right_motors = 0x81
         self.brush_motor = 0x80
@@ -89,54 +90,3 @@ class MotorControl:
         
     def clean_solar_panel(self):
         self.move_brush('R', 63)
-        
-# class MyController(Controller):
-
-#     def __init__(self, **kwargs):
-#         Controller.__init__(self, **kwargs)
-#         self.mc = MotorControl()
-#         self.brush_dir: str = 'R'
-
-#     def on_x_press(self):
-#         print("Stop")
-#         self.mc.stop_robot()
-
-#     def on_triangle_press(self):
-#         if self.brush_dir == 'L':
-#             self.brush_dir = 'R'
-#         else:
-#             self.brush_dir = 'L'
-
-#     def on_circle_release(self):
-#        self.mc.move_brush('R', 67)
-
-#     def on_R2_press(self, value):
-#         # supposed to be 0-127 here but for some reason turning it 'L' runs into a
-#         # Input/output error with the roboclaw library 
-#         speed = int(np.interp(value, [-32767, 32767], [0, 126]))
-#         # print(speed)
-#         self.mc.move_brush(self.brush_dir, speed)
-
-#     def on_R2_release(self):
-#         self.mc.move_brush(self.brush_dir, 0)
-
-#     def on_R3_up(self, value):
-#         value = abs(value)
-#         speed = int(np.interp(value, [0, 32767], [0, 126]))
-#         self.mc.move_robot('R', speed)
-
-#     def on_R3_down(self, value):
-#         speed = int(np.interp(value, [0, 32767], [0, 126]))
-#         self.mc.move_robot('L', speed)
-
-#     def on_R3_y_at_rest(self):
-#         self.mc.move_robot('R', 0)
-
-#     def on_R1_press(self):
-#         distance_traveled = self.mc.find_distance('L')
-#         print(distance_traveled)
-#         return distance_traveled
-
-# controller = MyController(interface="/dev/input/js0", connecting_using_ds4drv=False)
-# # you can start listening before controller is paired, as long as you pair it within the timeout window
-# controller.listen(timeout=60)
