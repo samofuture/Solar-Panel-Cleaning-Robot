@@ -5,7 +5,7 @@ from motor_control import MotorControl
 
 class MyController(Controller):
 
-    def __init__(self, motor_controller: MotorControl, manual_button: Button, **kwargs):
+    def __init__(self, manual_button: Button, **kwargs):
         Controller.__init__(self, **kwargs)
         self.mc = motor_controller
         self.brush_dir: str = 'R'
