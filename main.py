@@ -33,12 +33,18 @@ if __name__ == '__main__':
         curr_time += 1
         # If Manual Button is pressed
         if manual_button.is_pressed:
-            motor_controller = mc(manual_button)
-            controller = rc.MyController(motor_controller=motor_controller, manual_button=manual_button, interface="/dev/input/js0", connecting_using_ds4drv=False)
+            motor_controller = mc()
+            #controller = rc.MyController(motor_controller=motor_controller, manual_button=manual_button, interface="/dev/input/js0", connecting_using_ds4drv=False)
             # you can start listening before controller is paired, as long as you pair it within the timeout window
-            controller.listen(timeout=30, on_connect=print("Connected to Controller"), on_disconnect=print("Disconnected from Controller"))
-
-	    # If it's time to check the panel
+            #controller.listen(timeout=30, on_connect=print("Connected to Controller"), on_disconnect=print("Disconnected from Controller"))
+            #motor_controller.move_robot('R', 50)
+            #motor_controller.move_right(64)
+            motor_controller.move_robot_distance(64, 31)
+            sleep(2)
+            motor_controller.move_left(64)
+            sleep(2)
+            motor_controller.stop_robot()
+            # If it's time to check the panel
         elif (curr_time - next_solar_noon > 0 and curr_time - next_solar_noon < 60):
             # TODO: Figure out how to take a picture here
             new_img = None

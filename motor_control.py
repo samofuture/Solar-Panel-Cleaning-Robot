@@ -16,13 +16,13 @@ class MotorControl:
         self.right_motors = rc("/dev/ttyACM0", 38400)   # This is the motor controller with the main housing
         self.left_motors = rc("/dev/ttyACM1", 38400)
         self.brush_motor = rc("/dev/ttyACM2", 38400)
-        self.address = 0x81
+        self.address = 0x80
         right_status = self.right_motors.Open()
         left_status = self.left_motors.Open()
-        brush_status = self.brush_motor.Open()
+        #brush_status = self.brush_motor.Open()
         print("Right Motors Status:", right_status)
         print("Left Motors Status:", left_status)
-        print("Brush Motors Status:", brush_status)
+        #print("Brush Motors Status:", brush_status)
 
     def _distance_to_count(self, distance_cm: float) -> float:
         """
@@ -45,7 +45,7 @@ class MotorControl:
         Moves the robot at a given speed (0 - 126) for some distance given in cm
         Distance is negative to go one way, and positive to go the other way
         """
-        final_enc_pos = self._distance_to_count(distance_cm)
+        final_enc_pos = int(self._distance_to_count(distance_cm))
         
         self.right_motors.SpeedDistanceM1M2(self.address, speed, final_enc_pos, speed, final_enc_pos, 1)
         self.left_motors.SpeedDistanceM1M2(self.address, speed, final_enc_pos, speed, final_enc_pos, 1)
@@ -66,6 +66,16 @@ class MotorControl:
             self.brush_motor.ForwardM1(self.brush_motor, speed)
         elif dir == 'R':
             self.brush_motor.BackwardM1(self.brush_motor, speed)
+
+    def move_right(self, speed: int):
+        print("Pre Move Right")
+        self.right_motors.ForwardM1(self.address, speed)
+        print("Post Move Right")
+
+    def move_left(self, speed: int):
+        print("Pre Move Left")
+        self.left_motors.ForwardMixed(self.address, speed)
+        print("Post Move Left")
 
     def move_robot(self, dir: str, speed: int):
         """
