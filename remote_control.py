@@ -26,17 +26,15 @@ class MyController(Controller):
         When the right trigger is pressed down, move the brush motor right
         Value is how much the trigger is being pressed
         """
-        # supposed to be 0-127 here but for some reason turning it 'L' runs into a
-        # Input/output error with the roboclaw library when at the full 127
         print(value)
         speed = int(np.interp(value, [-32767, 32767], [0, 126]))
-        self.mc.move_brush('R', speed)
+        self.mc.set_brush_speed('R', speed)
 
     def on_R2_release(self):
         """
         When the right trigger is released stop the brush motor
         """
-        self.mc.move_brush('R', 0)
+        self.mc.set_brush_speed('R', 0)
 
     def on_L2_press(self, value):
         """
@@ -45,13 +43,13 @@ class MyController(Controller):
         """
         print(value)
         speed = int(np.interp(value, [-32767, 32767], [0, 126]))
-        self.mc.move_brush('L', speed)
+        self.mc.set_brush_speed('L', speed)
 
     def on_L2_release(self):
         """
         When the left trigger is released stop the brush motor
         """
-        self.mc.move_brush('L', 0)
+        self.mc.set_brush_speed('L', 0)
     
     def on_R3_up(self, value):
         """
@@ -92,3 +90,9 @@ class MyController(Controller):
         if not self.button.is_pressed:
             self.mc.stop_robot()
             self.stop = True
+
+    def on_triangle_press(self):
+        """
+        Sets the robot to clean the panel autonomously
+        """
+        self.mc.clean_solar_panel()
