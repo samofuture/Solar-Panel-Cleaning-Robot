@@ -16,9 +16,9 @@ class MotorControl:
     brush_speed = 64
     auto_speed = 48
     def __init__(self, manual_button: Button) -> None:
-        self.right_motors = rc("/dev/ttyACM0", 38400)   # This is the motor controller with the main housing
+        self.right_motors = rc("/dev/ttyACM2", 38400)   # This is the motor controller with the main housing
         self.left_motors = rc("/dev/ttyACM1", 38400)
-        self.brush_motor = rc("/dev/ttyACM2", 38400)
+        self.brush_motor = rc("/dev/ttyACM0", 38400)
         self.address = 0x80
         self.manual_button = manual_button
 
@@ -57,7 +57,7 @@ class MotorControl:
         remaining_distance = abs(distance_cm)
         if brush_enabled:
             self.set_brush_speed('R', self.brush_speed)
-        
+        curr_distance = 0
         while remaining_distance > 0 and not self.manual_button.is_pressed:
             if distance_cm < 0:
                 self.move_robot('L', self.auto_speed)
@@ -90,9 +90,9 @@ class MotorControl:
         # supposed to be 0-127 here but for some reason turning it backward runs into a
         # Input/output error with the roboclaw library when at the full 127
         if dir == 'R':
-            self.brush_motor.ForwardM1(self.brush_motor, speed)
+            self.brush_motor.ForwardM1(self.address, speed)
         elif dir == 'L':
-            self.brush_motor.BackwardM1(self.brush_motor, speed)
+            self.brush_motor.BackwardM1(self.address, speed)
 
     def set_right_speed(self, dir: str, speed: int):
         """
