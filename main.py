@@ -34,39 +34,9 @@ if __name__ == '__main__':
         # If Manual Button is pressed
         if manual_button.is_pressed:
             motor_controller = mc(manual_button)
-            #controller = rc.MyController(motor_controller=motor_controller, manual_button=manual_button, interface="/dev/input/js0", connecting_using_ds4drv=False)
+            controller = rc.MyController(motor_controller=motor_controller, manual_button=manual_button, interface="/dev/input/js0", connecting_using_ds4drv=False)
             # you can start listening before controller is paired, as long as you pair it within the timeout window
-            #controller.listen(timeout=30, on_connect=print("Connected to Controller"), on_disconnect=print("Disconnected from Controller"))
-            
-            print("Brush Test")
-            motor_controller.stop_robot()
-            motor_controller.set_brush_speed('R', 64)
-            sleep(1)
-
-            print("Right Test")
-            motor_controller.stop_robot()
-            sleep(0.5)
-            motor_controller.set_right_speed('R', 64)
-            sleep(1)
-            
-            print("Left Test")
-            motor_controller.stop_robot()
-            sleep(0.5)
-            motor_controller.set_left_speed('R', 64)
-            sleep(1)
-            
-            print("Move Test")
-            motor_controller.stop_robot()
-            sleep(0.5)
-            motor_controller.move_robot('L', 64)
-            sleep(2)
-            
-            print("Move Distance Test w/ Brush On")
-            motor_controller.stop_robot()
-            sleep(0.5)
-            motor_controller.move_robot_distance(31, True)
-            sleep(2)
-            motor_controller.stop_robot()
+            controller.listen(timeout=30, on_connect=print("Connected to Controller"), on_disconnect=print("Disconnected from Controller"))
             
         # If it's time to check the panel
         elif (curr_time - next_solar_noon > 0 and curr_time - next_solar_noon < 60):
