@@ -24,7 +24,7 @@ if __name__ == '__main__':
     manual_button = Button(4)
     #print(f"Next Solar Noon: {st.get_solar_noon()}")
     #next_solar_noon = st.date_to_epoch(st.get_solar_noon())
-    need_to_clean: bool = False
+    need_to_clean: bool = True
     next_solar_noon = 0
     curr_time = 1000000000000
     print(f"Next Solar Noon: {next_solar_noon}")
@@ -34,6 +34,8 @@ if __name__ == '__main__':
         # If Manual Button is pressed
         if manual_button.is_pressed:
             motor_controller = mc(manual_button)
+            motor_controller.clean_solar_panel()
+
             controller = rc.MyController(motor_controller=motor_controller, manual_button=manual_button, interface="/dev/input/js0", connecting_using_ds4drv=False)
             # you can start listening before controller is paired, as long as you pair it within the timeout window
             controller.listen(timeout=30, on_connect=print("Connected to Controller"), on_disconnect=print("Disconnected from Controller"))
@@ -47,9 +49,10 @@ if __name__ == '__main__':
             
         # If it's time to clean the panel
         elif need_to_clean:
-            mc.clean_solar_panel()
+            mc(manual_button).clean_solar_panel()
             # next_solar_noon = st.datetime_to_epoch(st.get_solar_noon())
             print(f"Next Solar Noon: {next_solar_noon}")
+            need_to_clean = False
             
         print(f"Current Time: {curr_time}")
         sleep(0.5)
