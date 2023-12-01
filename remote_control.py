@@ -3,6 +3,9 @@ from gpiozero import Button
 from pyPS4Controller.controller import Controller
 from motor_control import MotorControl
 
+MAX_BRUSH_SPEED = 126
+MAX_DRIVE_SPEED = 32
+
 class MyController(Controller):
     """
     The MyController class is overloading the functions provided by the pyPS4Controller library
@@ -20,14 +23,20 @@ class MyController(Controller):
         """
         print("Stop")
         self.mc.stop_robot()
-
+    
+    def on_square_press(self):
+        """
+        Sends the signal to reset the encoders
+        """
+        print("Reset Encoders")
+        self.mc.reset_encoders()
+    
     def on_R2_press(self, value):
         """
         When the right trigger is pressed down, move the brush motor right
         Value is how much the trigger is being pressed
         """
-        print(value)
-        speed = int(np.interp(value, [-32767, 32767], [0, 126]))
+        speed = int(np.interp(value, [-32767, 32767], [0, MAX_BRUSH_SPEED]))
         self.mc.set_brush_speed('R', speed)
 
     def on_R2_release(self):
@@ -41,8 +50,7 @@ class MyController(Controller):
         When the left trigger is pressed down, move the brush motor left
         Value is how much the trigger is being pressed
         """
-        print(value)
-        speed = int(np.interp(value, [-32767, 32767], [0, 126]))
+        speed = int(np.interp(value, [-32767, 32767], [0, MAX_BRUSH_SPEED]))
         self.mc.set_brush_speed('L', speed)
 
     def on_L2_release(self):
@@ -57,7 +65,7 @@ class MyController(Controller):
         Value is how much the joystick is being moved
         """
         value = abs(value)
-        speed = int(np.interp(value, [0, 32767], [0, 126]))
+        speed = int(np.interp(value, [0, 32767], [0, MAX_DRIVE_SPEED]))
         self.mc.move_robot('R', speed)
 
     def on_R3_down(self, value):
@@ -65,7 +73,7 @@ class MyController(Controller):
         When the right joystick is being moved down, move the robot accordingly
         Value is how much the joystick is being moved
         """
-        speed = int(np.interp(value, [0, 32767], [0, 126]))
+        speed = int(np.interp(value, [0, 32767], [0, MAX_DRIVE_SPEED]))
         self.mc.move_robot('L', speed)
 
     def on_R3_y_at_rest(self):
@@ -80,7 +88,10 @@ class MyController(Controller):
         has traveled to the console
         """
         distance_traveled = self.mc.find_distance()
-        print(distance_traveled)
+        print("Estimated Distance:", distance_traveled)
+        encoder_ticks = self.mc.read_encoders()
+        print("Left Encoder Counts:", encoder_ticks[0])
+        print("Right Encoder Counts:", encoder_ticks[1])
         return distance_traveled
     
     def on_playstation_button_press(self):
