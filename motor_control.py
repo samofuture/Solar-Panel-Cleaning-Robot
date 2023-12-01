@@ -10,15 +10,16 @@ class MotorControl:
     The MotorControl class is designed to run as a wrapper for the roboclaw library and for more straight 
     forward readability in functions that need to move the motors
     """
-    ppr: float = 1425.2                                     # Pulses per Revolution
-    wheel_radius_cm = 2 * 2.54                              # The wheel radius in cm
+    fudge: float = -200
+    ppr: float = 1425.2 / 5 + fudge                                     # Pulses per Revolution
+    wheel_radius_cm = 10.5 / 2                              # The wheel radius in cm
     wheel_circumference_cm = 2 * wheel_radius_cm * np.pi    # The wheel circumference in cm
-    brush_speed = 64
-    auto_speed = 48
+    brush_speed = 126
+    auto_speed = 32
     def __init__(self, manual_button: Button) -> None:
-        self.right_motors = rc("/dev/ttyACM2", 38400)   # This is the motor controller with the main housing
+        self.right_motors = rc("/dev/ttyACM0", 38400)   # This is the motor controller with the main housing
         self.left_motors = rc("/dev/ttyACM1", 38400)
-        self.brush_motor = rc("/dev/ttyACM0", 38400)
+        self.brush_motor = rc("/dev/ttyACM2", 38400)
         self.address = 0x80
         self.manual_button = manual_button
 
@@ -160,4 +161,4 @@ class MotorControl:
         """
         The function to begin the autonomous cleaning routine
         """
-        self.move_robot_distance(15, True)
+        self.move_robot_distance(10)
