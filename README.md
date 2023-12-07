@@ -4,10 +4,6 @@ This is a senior design project worked on by Sam Crane (CpE), Tyler Pace (ME), M
 Completed Prototype
 ![Completed Prototype](Resources/FullyAssembled.png)
 
-Robot Cleaning Solar Panel
-![Robot Traversing Panel](Resources/Robot%20Moving%20Across%20Panel.gif)
-![Completed Prototype](Resources/IMG_0341.gif)
-
 ## Dependencies
 The main dependencies are found in the requirements.txt. They can be installed to your python environment by going to a terminal and typing `pip install -r requirements.txt`. If you run this command and find that there are dependencies missing still, please update requirements.txt. I used Python 3.11 for developing this code, I can't guarantee it will work with other versions.
 
