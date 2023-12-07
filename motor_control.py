@@ -1,3 +1,21 @@
+"""
+This is the motor control file. It does what the title says: control the motors.
+That being said, this is kind of a wrapper for the roboclaw library, I created this so that
+I can easily read what's happening with my code.
+
+Known Issues:
+There's *supposed* to be a lot of functionality built in with the roboclaw library that I never got working
+(being team lead will do that to you), but every function I built here does what it's supposed to, so if you
+want to try to clean up this code a lot, start troubleshooting there.
+
+The Encoders: As you'll see in a bit more detail below, there's problems with the numbers used to calculate
+the distance the robot has traveled; but the more pressing issue is that sometimes, the ENCODERS STOP REPORTING.
+We discovered this late in the project, so we didn't get a chance to fix it. My guess for what is causing the issue is 
+the wires used for the encoders. They break at every opportunity they get so I would try to get some more flexible
+wires. Also, we physically can't plug the encoders into the brush motor (in the current design, yay miscommunication
+w/ Mech E's). Definitely look out for that before trying to run the robot in autonomous mode.
+"""
+
 from roboclaw_python.roboclaw_3 import Roboclaw as rc
 from gpiozero import Button
 import numpy as np
@@ -10,6 +28,8 @@ class MotorControl:
     The MotorControl class is designed to run as a wrapper for the roboclaw library and for more straight 
     forward readability in functions that need to move the motors
     """
+    # I read throught the documenation for these encoders, they said it was 1425.2 ppr, but it was moving a lot more than that,
+    # so we did guess and check to get something close to what was right
     fudge: float = -200
     ppr: float = 1425.2 / 5 + fudge                                     # Pulses per Revolution
     wheel_radius_cm = 10.5 / 2                              # The wheel radius in cm
@@ -17,10 +37,15 @@ class MotorControl:
     brush_speed = 126
     auto_speed = 32
     def __init__(self, manual_button: Button) -> None:
+        # This did not follow the tutorial, I don't know why the serial address isn't /dev/ttyS0,
+        # but this worked for us. If I had to guess, this is why the implementation of their code
+        # doesn't quite work right for some of their functions.
         self.right_motors = rc("/dev/ttyACM0", 38400)   # This is the motor controller with the main housing
         self.left_motors = rc("/dev/ttyACM1", 38400)
         self.brush_motor = rc("/dev/ttyACM2", 38400)
-        self.address = 0x80
+        
+        self.address = 0x80 # Because they're on different serial ports, they can have the same address,
+                            # but, again, this is because of what's happening above
         self.manual_button = manual_button
 
         right_status = self.right_motors.Open()

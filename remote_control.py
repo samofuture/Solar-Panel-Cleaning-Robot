@@ -1,3 +1,10 @@
+"""
+This the remote control file. Using the pyPS4Controller library,
+we can control what happens when a input is given on the connected controller.
+
+Please note that it takes a long time to connect, usually requiring trying < 3 times.
+"""
+
 import numpy as np
 from gpiozero import Button
 from pyPS4Controller.controller import Controller
