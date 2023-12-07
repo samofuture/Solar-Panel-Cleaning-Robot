@@ -40,6 +40,7 @@ class MotorControl:
         # This did not follow the tutorial, I don't know why the serial address isn't /dev/ttyS0,
         # but this worked for us. If I had to guess, this is why the implementation of their code
         # doesn't quite work right for some of their functions.
+        # Other fun thing, they sometimes swap places
         self.right_motors = rc("/dev/ttyACM0", 38400)   # This is the motor controller with the main housing
         self.left_motors = rc("/dev/ttyACM1", 38400)
         self.brush_motor = rc("/dev/ttyACM2", 38400)
