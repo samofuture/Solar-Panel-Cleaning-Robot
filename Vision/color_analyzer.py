@@ -88,7 +88,7 @@ def panel_is_dirty(new_img: str) -> bool:
     # TODO: Make sure that the path is correct
     clean_image = cv.imread(os.path.join('../Pictures/', 'clean.jpg'))
 
-    # Find out how to take a picture and store it here
+    # TODO: Find out how to take a picture and store it here
     dirty_image = cv.imread(os.path.join('../Pictures/', new_img))
 
     # Find the masks of the images based on the clean image
